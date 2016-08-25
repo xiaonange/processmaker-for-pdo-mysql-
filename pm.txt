@@ -1,0 +1,55 @@
+1.数据库配置  apps/processmaker/htdocs/shared/sites/workflow/db.php   
+修改  define ('DB_ADAPTER',     'mysql' ); 为define ('DB_ADAPTER',     'pdo' );
+
+2.添加配置项 apps\processmaker\htdocs\gulliver\thirdparty\propel\adapter\DBAdapter.php    添加 'pdo' => 'DBPDO',
+	private static $adapters = array(
+								    'mysql' => 'DBMySQL',
+									'mysqli' => 'DBMySQLi',
+			                    'pdo' => 'DBPDO',
+								    'mssql' => 'DBMSSQL',
+								    'sybase' => 'DBSybase',
+								    'oracle' => 'DBOracle',
+								    'pgsql' => 'DBPostgres',
+								    'sqlite' => 'DBSQLite',
+                    'dbarray' => 'DBArray',
+								    '' => 'DBNone',
+	);
+
+3. 创建PDO配置文件  apps\processmaker\htdocs\gulliver\thirdparty\propel\adapter\   
+DBPDO.php
+
+4.apps\processmaker\htdocs\gulliver\thirdparty\creole\Creole.php   添加pdo的drivers指向
+    private static $driverMap = array(  'mysql' => 'creole.drivers.mysql.MySQLConnection',
+                                        'mysqli' => 'creole.drivers.mysqli.MySQLiConnection',
+                                        'pdo' => 'creole.drivers.pdo.PDOConnection',
+                                        'pgsql' => 'creole.drivers.pgsql.PgSQLConnection',
+                                        'sqlite' => 'creole.drivers.sqlite.SQLiteConnection',
+                                        'oracle' => 'creole.drivers.oracle.OCI8Connection',
+                                        'mssql' => 'creole.drivers.mssql.MSSQLConnection',
+                                        'odbc' => 'creole.drivers.odbc.ODBCConnection'
+                                       );
+
+5.建立PDO文件夹,编写driver
+
+6. apps\processmaker\htdocs\workflow\engine\src\ProcessMaker\Services\OAuth2\PmPdo.php 第37行添加一下内容。。因为其默认以配置的文件的type作为pdo连接头   
+$connection['dsn'] = str_replace('pdo:','mysql:',$connection['dsn']);	
+
+7.	apps/processmaker/htdocs/gulliver/system/下建立class.database_pdo.php		（此文件仅为文档上传文件用，实际代码可以copy mysql原版本）
+class.database_pdo.php			   
+
+8.pm_table，apps\processmaker\htdocs\workflow\engine\config 下创建配置文件，
+propel.pdo.ini  （内容复制propel.mysql.ini，修改具体配置项）
+
+9.apps\processmaker\htdocs\gulliver\thirdparty\propel-generator\classes\propel\engine\platform
+添加PdoPlatform.php
+
+
+
+10.apps\processmaker\htdocs\gulliver\thirdparty\propel-generator\classes\propel\engine\builder\sql
+创建pdo文件夹，（copy mysql 里面内容修改为pdo所用参数） 
+
+11. apps\processmaker\htdocs\workflow\engine\classes\class.pmTable.php  438行添加
+if($dbEngine == 'pdo'){$dbEngine = 'mysql';}
+
+12.apps\processmaker\htdocs\workflow\engine\src\ProcessMaker\Project
+修正不能修改流程名字

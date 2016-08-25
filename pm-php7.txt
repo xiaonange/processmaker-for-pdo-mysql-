@@ -1,0 +1,49 @@
+      
+1.apps\processmaker\htdocs\gulliver\thirdparty\smarty\libs修改Smarty_Compiler.class.php
+
+	  /*$source_content = preg_replace($search.'e', "'"
+                                       . $this->_quote_replace($this->left_delimiter) . 'php'
+                                       . "' . str_repeat(\"\n\", substr_count('\\0', \"\n\")) .'"
+                                       . $this->_quote_replace($this->right_delimiter)
+                                       . "'"
+                                       , $source_content);*/
+									   为
+        $source_content = preg_replace_callback($search,
+            function() {
+                return $this->_quote_replace($this->left_delimiter) . 'php'. str_repeat("\n", substr_count('0', "\n")) .$this->_quote_replace($this->right_delimiter);
+            },$source_content);
+			
+2.D:\xampp2\htdocs\apps\processmaker\htdocs\workflow\engine\config
+      paths_installed.php文件修改路径
+
+3.   D:\xampp2\htdocs\apps\processmaker\htdocs\gulliver\system    修改class.inputfilter.php  293行
+     // convert decimal
+        //$source = preg_replace('/&#(\d+);/me',"chr(\\1)", $source);// decimal notation
+		$source = preg_replace_callback('/&#(\d+);/m',
+		function(){
+			return chr(1);}
+		, $source);
+        // convert hex
+        //$source = preg_replace('/&#x([a-f0-9]+);/mei',"chr(0x\\1)", $source);// hex notation
+		$source = preg_replace_callback('/&#x([a-f0-9]+);/mi',function(){
+			return chr(0x1);}, $source);
+			
+			
+4.全局替换 PMPluginRegistry类 和PMMemcache类前面的&符号
+
+5.Notice: Array to string conversion in D:\xampp2\htdocs\apps\processmaker\htdocs\gulliver\system\class.httpProxyController.php on line 146
+某些此类提示、
+  $this->__request__->$var['key'] = $var['value'];
+  改为
+    $this->__request__->{$var['key']} = $var['value'];
+	
+6.方法重写php5没问题，在php7引起的不兼容
+补全子类重写函数的值数量
+
+其他一些功能：
+D:\xampp2\htdocs\apps\processmaker\htdocs\workflow\engine\src\ProcessMaker\BusinessModel\DynaForm.php  1027处
+
+            //$record["DYN_CONTENT"] = preg_replace("/\\\\u([a-f0-9]{4})/e", "iconv('UCS-4LE','UTF-8',pack('V', hexdec('U$1')))", $record["DYN_CONTENT"]);
+			$record["DYN_CONTENT"] = preg_replace_callback("/\\\\u([a-f0-9]{4})/", function(){
+				return iconv('UCS-4LE','UTF-8',pack('V', hexdec('U$1')));}, $record["DYN_CONTENT"]);
+				
